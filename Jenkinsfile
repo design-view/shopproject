@@ -22,8 +22,7 @@ pipeline {
     stage('Git Clone') {
       steps {
         echo 'Git Clone'
-        git url: 'https://github.com/design-view/shopproject
-.git',
+        git url: 'https://github.com/design-view/shopproject.git',
           branch: 'main', credentialsId: 'gitToken'
       }
     }
