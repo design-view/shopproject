@@ -6,7 +6,7 @@ pipeline {
     gradle "Ga"
   }
   environment { 
-    DOCKERHUB_CREDENTIALS = credentials('dockerhuyCre') 
+    DOCKERHUB_CREDENTIALS = credentials('dockerhubToken') 
     REGION = "ap-northeast-2"
     AWS_CREDENTIAL_NAME = 'awsTeam4'
   }
