@@ -1,0 +1,7 @@
+version: '3.9'
+services:
+  springproject:
+    image: pinkcandy02/springproject:latest
+    container_name: springproject
+    ports:
+      - "80:8081"

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="~{layout/basic::setContent(~{this::content})}">
+    <th:block th:fragment="content">
+        <h1>상품등록페이지</h1>
+        <form action="/admin/item/new" method="post" th:object="${itemDTO}"
+              enctype="multipart/form-data" >
+            <div class="form-group">
+                <select th:field="*{itemSellStatus}">
+                    <option value="SELL">판매중</option>
+                    <option value="SOLD_OUT">품절</option>
+                </select>
+            </div>
+            <div class="form-group">
+                상품명
+                <input type="text" required class="form-control"
+                       th:field="*{itemNm}" placeholder="상품명을 입력하세요">
+            </div>
+            <div class="form-group">
+                가격
+                <input type="text" required class="form-control"
+                       th:field="*{price}" placeholder="상품의 가격을 입력하세요">
+            </div>
+            <div class="form-group">
+                재고수량
+                <input type="text" required class="form-control"
+                       th:field="*{stockNumber}" placeholder="상품의 재고를 입력하세요">
+            </div>
+            <div class="form-group">
+                상품상세내용
+                <textarea class="form-control" th:field="*{itemDetail}"></textarea>
+            </div>
+            <div class="form-group" th:each="num: ${#numbers.sequence(1,5)}">
+                <div class="custom-file img-div">
+                    상품이미지
+                    <input type="file" name="itemImgFile" class="custom-file-input">
+                    <label class="custom-file-label" th:text="상품이미지+${num}"></label>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </th:block>
+</th:block>
+<script th:inline="javascript">
+    let errorMessage = [[${errorMessage}]];
+    if(errorMessage!=null){
+        alert(errorMessage);
+    }
+    $(".custom-file-input").on("change",function(){
+        let fileName = $(this).val().split("\\").pop(); //이미지파일명
+        $(this).siblings(".custom-file-label").html(fileName);
+    })
+</script>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="~{layout/basic::setContent(~{this::content})}">
+    <th:block th:fragment="content">
+        <h1>구매내역조회입니다.</h1>
+        <th:block th:each="dto:${result}">
+            <div class="d-flex mb-3 align-slef-center">
+                <h4 th:text="${dto.orderDate}"></h4>
+                <div class="ml-3">
+                    <th:block th:if="${dto.orderStatus==T(org.green.shop.constant.OrderStatus).ORDER}">
+                        <button th:value="${dto.orderId}" onclick="cancelOrder(this.value)">주문취소</button>
+                    </th:block>
+                    <th:block th:unless="${dto.orderStatus==T(org.green.shop.constant.OrderStatus).ORDER}">
+                        <button>(취소완료)</button>
+                    </th:block>
+                    <button th:value="${dto.orderId}" onclick="removeOrder(this.value)">구매이력삭제</button>
+
+                </div>
+            </div>
+            <div class="d-flex">
+                <th:block th:each="orderItem:${dto.orderItemDTOList}">
+                    <div class="repImgDiv w-25">
+                        <img th:src="${orderItem.imgUrl}" width="100%"/>
+                    </div>
+                    <div class="w-75">
+                        <span th:text="${orderItem.itemNm}"></span>
+                        <p th:text="${orderItem.orderPrice}+'원'"></p>
+                        <p th:text="${orderItem.count}+'개'"></p>
+                    </div>
+                </th:block>
+            </div>
+        </th:block>
+    </th:block>
+</th:block>
+<script>
+    function cancelOrder(orderId){
+        $.ajax({
+            url:"/order/"+orderId+"/cancel",
+            type:"post",
+            dataType:"json",
+            success:function(result){
+                alert("주문이 취소되었습니다.");
+                location.href="/orders";
+            },
+            error:function(error){
+                alert(error.responseText);
+            }
+        })
+    }
+    function removeOrder(orderId){
+        $.ajax({
+            url:"/order/"+orderId,
+            type:"delete",
+            dataType:"json",
+            success:function(result){
+                alert("주문이 삭제 되었습니다.");
+                location.href="/orders";
+            },
+            error:function(error){
+                alert(error.responseText);
+            }
+        })
+    }
+
+</script>
+</html>

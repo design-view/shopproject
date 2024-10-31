@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="~{layout/basic::setContent(~{this::content})}">
+    <th:block th:fragment="content">
+        <h1>로그인</h1>
+        <p th:if="${loginErrorMsg}" th:text="${loginErrorMsg}"></p>
+        <form action="/loginProc" method="post">
+            <div class="form-group">
+                <label for="email">이메일</label>
+                <input type="text" class="form-control" id="email"
+                       name="username">
+            </div>
+
+            <div class="form-group">
+                <label for="password">비밀번호</label>
+                <input type="password" class="form-control" id="password"
+                name="password">
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </th:block>
+</th:block>
+</html>

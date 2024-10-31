@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="~{layout/basic::setContent(~{this::content})}">
+    <th:block th:fragment="content">
+        <h1>장바구니 목록</h1>
+        <div>
+            <table class="table">
+                <tr class="text-center">
+                    <td><input type="checkbox" id="checkall" onclick="checkAll()" />전체선택</td>
+                    <td>상품정보</td>
+                    <td>상품금액</td>
+                </tr>
+                <tr th:each="cartItem:${result}">
+                    <td>
+                        <input type="checkbox" name="cartChkBox" th:value="${cartItem.cartItemId}"/>
+                    </td>
+                    <td class="d-flex">
+                        <div class="repImgDiv">
+                            <img th:src="${cartItem.imgUrl}" width="200" class="rounded repImg" />
+                        </div>
+                        <div>
+                            <h3 th:text="${cartItem.itemNm}"></h3>
+                            <div>
+                                <span th:id="'price'+${cartItem.cartItemId}"
+                                      th:data-price="${cartItem.price}"
+                                      th:text="${cartItem.price}+'원'"></span>
+                                <input type="number" onchange="changeCount(this)" name="count" th:value="${cartItem.count}"
+                                       min="1" th:id="'count_'+${cartItem.cartItemId}"/>
+                                <button type="button" onclick="deleteCartItem(this)"
+                                        th:data-cartItemid="${cartItem.cartItemId}" class="close">X</button>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span th:id="'totalPrice_'+${cartItem.cartItemId}"
+                        name="totalPrice" th:text="${cartItem.price*cartItem.count}+'원'"></span>
+                    </td>
+                </tr>
+            </table>
+            <div class="text-center">
+                총 주문 금액 : <span id="orderTotalPrice" class="text-danger">0원</span>
+            </div>
+            <div class="text-center">
+               <button type="button" onclick="order()" class="btn btn-primary btn-lg">주문하기</button>
+            </div>
+        </div>
+    </th:block>
+</th:block>
+<script>
+    $(document).ready(function(){
+        //체크박스 변경이벤트 체크박스가 변경될때 getOrderTotalPrice()호출
+        $("input[name=cartChkBox]").change(function(){
+            getOrderTotalPrice();
+        })
+    })
+    function getOrderTotalPrice(){
+        let orderTotalPrice = 0;
+        //선택된 체크박스순서대로 함수실행
+        $("input[name=cartChkBox]:checked").each(function(){
+            let cartItemId =  $(this).val();
+            let price = $("#price"+cartItemId).attr("data-price");
+            let count = $("#count_"+cartItemId).val();
+            orderTotalPrice += price*count;
+        })
+        $("#orderTotalPrice").html(orderTotalPrice+"원");
+    }
+    //삭제버튼 클릭했을때 삭제요청
+    function deleteCartItem(obj){
+        console.log(obj);
+        let cartItemId = obj.dataset.cartitemid;
+        $.ajax({
+            url: "/cartItem/"+cartItemId,
+            type: "delete",
+            dataType: "json",
+            success:function(result){
+                console.log("장바구니아이템삭제");
+                location.href="/cart";
+            },
+            error: function(error){
+                alert(error.responseText);
+            }
+        })
+
+    }
+    //전체선택 체크박스 체크 했을때 실행
+    function checkAll(){
+        //체크박스 속성 ckecked가 true일때
+        if($("#checkall").prop("checked")){
+            $("input[name=cartChkBox]").prop("checked",true);
+        }else {
+            $("input[name=cartChkBox]").prop("checked",false);
+        }
+        getOrderTotalPrice();
+    }
+    //수량변경될때 실행될 함수
+    function changeCount(obj){
+        let count = obj.value;
+        let cartItemId = obj.id.split('_')[1];  ///count_23 --> ["count","23"]
+        let price = $("#price"+cartItemId).attr("data-price");
+        console.log("수량" + count)
+        console.log("가격" + price)
+        console.log("장바구니아이템아이디" + cartItemId)
+        let totalPrice = count*price;
+        $("#totalPrice_"+cartItemId).html(totalPrice+"원");
+        getOrderTotalPrice();
+        updateCartItem(cartItemId,count);
+    }
+    //수량변경될때 데이터베이스 업데이트요청
+    function updateCartItem(cartItemId,count){
+        $.ajax({
+            url: "/cartItem/"+cartItemId+"?count="+count,
+            type: "post",
+            dataType: "json",
+            success:function(result){
+                console.log("장바구니아이템 수량 업데이트 성공");
+            },
+            error: function(error){
+                alert(error.responseText);
+            }
+        })
+    }
+
+    //주문하기
+    function order(){
+        //전송될 배열생성
+        let dataList = [];
+
+        //선택된 체크박스순서대로 함수실행
+        //오브젝트 만들어서 dataList넣기
+        $("input[name=cartChkBox]:checked").each(function(){
+            let cartItemId =  $(this).val();
+            //객체 생성
+            let data = { cartItemId: cartItemId }
+            //let dataList = [{ cartItemId: 10 },{ carItemId: 20 },{ carItemId: 22 }];
+            //배열에 넣기
+            dataList.push(data);
+        })
+        console.log(dataList);
+         //전송될 데이터
+        let paramObject = { cartOrderDtoList : dataList };
+        //Json타입 JSON.stringify(obj) ---> json리턴
+        let param = JSON.stringify(paramObject);
+        $.ajax({
+            url:"/cart/order",
+            type: "post",
+            contentType: "application/json",
+            data: param,
+            dataType: "json",
+            success: function(result){
+                alert("주문이 완료되었습니다.");
+                location.href="/orders";
+            },
+            error: function(error){
+                alert(error.responseText)
+            }
+        })
+    }
+</script>
+</html>
