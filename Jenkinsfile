@@ -85,7 +85,7 @@ pipeline {
                     --auto-scaling-groups team4-shop-asg \
                     --deployment-group-name team4-codedeploy-group-${BUILD_NUMBER} \
                     --deployment-config-name CodeDeployDefault.OneAtATime \
-                    --service-role-arn arn:aws:iam::491085389788:role/team4-codedeploy-role
+                    --service-role-arn arn:aws:iam::491085389788:role/team4-codedeploy-role2
                     '''
                 echo "Codedeploy Workload"   
                 sh '''
