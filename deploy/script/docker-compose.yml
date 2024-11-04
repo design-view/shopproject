@@ -1,6 +1,6 @@
 version: '3.9'
 services:
-  springproject:
+  shopproject:
     image: pinkcandy02/shopproject:latest
     container_name: shopproject
     ports:
